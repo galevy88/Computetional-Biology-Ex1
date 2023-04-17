@@ -93,10 +93,10 @@ class Grid:
         """
         Check if the queue size is the same for 3 generations in a row
         """
-        if len(generation_data) < 3:
+        if len(generation_data) < 5:
             return False
         
-        if(generation_data[-1][1] != generation_data[-2][1] != generation_data[-3][1]):
+        if(generation_data[-1][1] != generation_data[-2][1] != generation_data[-3][1] != generation_data[-4][1] != generation_data[-5][1]):
             return False
         
         return True
