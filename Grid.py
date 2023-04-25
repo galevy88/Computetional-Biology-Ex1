@@ -9,6 +9,7 @@ import queue
 class Grid:
     def __init__(self):
         self.q = queue.Queue()
+        self.hold_q = queue.Queue()
         self.clock = pygame.time.Clock()
 
         # Set grid size and population density
@@ -62,26 +63,34 @@ class Grid:
                 while not status:
                     chosen_cell = self.get_random_cell()
                     status = chosen_cell.recieve_rumor()
-
                 neighbors = chosen_cell.get_neighbors(self.grid)
                 cells_for_next_generation = self.spread_rumor(neighbors)
                 for c in cells_for_next_generation:
                     self.q.put(c)
-                self.apply_new_generation()
                 first_iteration = False
             
             cells_for_next_generation = []
+            hold_cells = []
             while not self.q.empty():
                 current_cell = self.q.get()
                 neighbors = current_cell.get_neighbors(self.grid)
                 cells_for_next_generation.extend(self.spread_rumor(neighbors))
+                hold_cells.append(current_cell)
             for c in cells_for_next_generation:
                 if c not in self.q.queue:
+                    if c.L < 1:
+                        self.q.put(c)
+                        c.L = Globals.COOL_DOWN
+                        cells_for_next_generation.remove(c)
+            for c in hold_cells:
+                if c not in self.q.queue and c.L < 1:
                     self.q.put(c)
-            
-            self.display_grid(self.screen, gen)
+                    c.L = 0
+                    hold_cells.remove(c)
+            size = self.apply_new_generation()
+            self.display_grid(self.screen, gen, size)
             pygame.display.flip()
-            self.generation_data.append((gen, self.q.qsize()))
+            self.generation_data.append((gen, size))
             if self.check_for_convergence(self.generation_data):
                 return self.generation_data
 
@@ -91,18 +100,20 @@ class Grid:
     
     def check_for_convergence(self, generation_data):
         """
-        Check if the queue size is the same for 3 generations in a row
+        Check if the queue size is the same for 20 generations in a row
         """
-        if len(generation_data) < 5:
+        if len(generation_data) < 20:
             return False
-        
-        if(generation_data[-1][1] != generation_data[-2][1] != generation_data[-3][1] != generation_data[-4][1] != generation_data[-5][1]):
+            
+        queue_sizes = [data[1] for data in generation_data[-20:]]
+        if len(set(queue_sizes)) != 1:
             return False
-        
+            
         return True
 
 
-    def display_grid(self, screen, gen):
+
+    def display_grid(self, screen, gen, size):
         screen.fill(pygame.Color('black'))
         # Calculate cell size and padding to center grid on screen
         cell_size = 600 // self.grid_size
@@ -137,7 +148,7 @@ class Grid:
             screen.blit(line_surface, (30, 30 + i * 20))
             dirty_rects.append(line_surface.get_rect(topleft=(30, 30 + i * 20)))
 
-        status_text = f"Generation: {gen}\nRecieved Rumor: {self.q.qsize()}\n"
+        status_text = f"Generation: {gen}\nRecieved Rumor: {size}\n"
         status_lines = status_text.split('\n')
         for i, line in enumerate(status_lines):
             line_surface = self.font.render(line, True, pygame.Color('white'))
@@ -164,6 +175,10 @@ class Grid:
         return cells_for_next_gen
     
     def apply_new_generation(self):
+        counter = 0
         for i in range(self.grid_size):
             for j in range(self.grid_size):
                 self.grid[i, j].apply_new_generation()
+                if self.grid[i, j].rumor_received:
+                   counter += 1 
+        return counter

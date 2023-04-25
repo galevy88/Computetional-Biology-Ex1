@@ -32,6 +32,7 @@ class Cell:
         if self.can_spread:
             neighbors = self.get_neighbors(grid)
             self.L = Globals.COOL_DOWN
+            print(f"self.L is {self.L}")
             self.can_spread = False
             return neighbors
         return None
