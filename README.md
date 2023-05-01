@@ -30,4 +30,4 @@ Grid.py: The file that contains the Grid class and the Cell class, which represe
 
 Globals.py: The file that contains the global variables used in the project.
 
-README.md: The file that contains the project description, instructions, and other information.
+Cell.py: Include the cellular automata object for each cell in the grid
