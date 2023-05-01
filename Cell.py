@@ -15,11 +15,11 @@ class Cell:
         self.rumor_received = False
         
     def recieve_rumor(self):
-        if random.random() < self.rumor_prob:
+        if random.random() < self.rumor_prob and self.type != 'S4':
             self.rumor_received = True
             self.can_spread = True
             self.rumor_counter += 1
-        if self.rumor_counter >= 2:
+        if self.rumor_counter >= 2 or self.type == 'S4':
             self.has_to_change = True
             self.change_type()
         return self.rumor_received
@@ -54,15 +54,16 @@ class Cell:
         if self.type == 'S4':
             self.type = 'S3'
             self.rumor_prob = Globals.S3_RUMOR
-        if self.type == 'S3':
+        elif self.type == 'S3':
             self.type = 'S2'
             self.rumor_prob = Globals.S2_RUMOR
-        if self.type == 'S2':
+        elif self.type == 'S2':
             self.type = 'S1'
             self.rumor_prob = Globals.S1_RUMOR
-        if self.type == 'S1':
+        elif self.type == 'S1':
             self.type = 'S1'
             self.rumor_prob = Globals.S1_RUMOR
+
             
     def apply_new_generation(self):
         self.rumor_counter = 0

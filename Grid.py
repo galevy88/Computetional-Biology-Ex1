@@ -27,6 +27,7 @@ class Grid:
         self.grid
         self.generation_data = []
 
+    
     def create_grid(self):
         # Create a grid of size grid_size x grid_size with skepticism levels assigned randomly
         self.grid = np.empty((self.grid_size, self.grid_size), dtype=object)
@@ -42,7 +43,61 @@ class Grid:
                     self.grid[i, j].rumor_prob = Globals.transmission_probability.get(skepticism_level, None)
                     self.grid[i, j].original_params["type"] = skepticism_level
                     self.grid[i, j].original_params["rumor_prob"] = Globals.transmission_probability.get(skepticism_level, None)
+                    
+    def create_slow_grid(self):
+        # Create a grid of size grid_size x grid_size with skepticism levels assigned randomly
+        self.grid = np.empty((self.grid_size, self.grid_size), dtype=object)
+        for i in range(self.grid_size):
+            for j in range(self.grid_size):
+                self.grid[i, j] = Cell((i, j), 'X', None)
 
+        # Assign skepticism levels in criss Cross:
+        my_array = []
+        for m in range(0, 100, 4):
+            my_array.extend([m, m+1])
+        for i in range(self.grid_size):
+            for j in range(self.grid_size):
+                if random.randint(1, 100) < 70:
+                    if i in my_array or j % 3 == 0:
+                        skepticism_level = np.random.choice(['S3', 'S4'])
+                        self.grid[i, j].type = skepticism_level
+                        self.grid[i, j].rumor_prob = Globals.transmission_probability.get(skepticism_level, None)
+                        self.grid[i, j].original_params["type"] = skepticism_level
+                        self.grid[i, j].original_params["rumor_prob"] = Globals.transmission_probability.get(skepticism_level, None)
+                    else:
+                        skepticism_level = np.random.choice(['S1', 'S2']) 
+                        self.grid[i, j].type = skepticism_level
+                        self.grid[i, j].rumor_prob = Globals.transmission_probability.get(skepticism_level, None)
+                        self.grid[i, j].original_params["type"] = skepticism_level
+                        self.grid[i, j].original_params["rumor_prob"] = Globals.transmission_probability.get(skepticism_level, None)
+                        
+    def create_fast_grid(self):
+        # Create a grid of size grid_size x grid_size with skepticism levels assigned randomly
+        self.grid = np.empty((self.grid_size, self.grid_size), dtype=object)
+        for i in range(self.grid_size):
+            for j in range(self.grid_size):
+                self.grid[i, j] = Cell((i, j), 'X', None)
+
+        # Assign skepticism levels in criss Cross:
+        my_array = []
+        for m in range(0, 100, 4):
+            my_array.extend([m, m+1])
+        for i in range(self.grid_size):
+            for j in range(self.grid_size):
+                if random.randint(1, 100) < 70:
+                    if i in my_array or j % 3 == 0:
+                        skepticism_level = np.random.choice(['S1', 'S2'])
+                        self.grid[i, j].type = skepticism_level
+                        self.grid[i, j].rumor_prob = Globals.transmission_probability.get(skepticism_level, None)
+                        self.grid[i, j].original_params["type"] = skepticism_level
+                        self.grid[i, j].original_params["rumor_prob"] = Globals.transmission_probability.get(skepticism_level, None)
+                    else:
+                        skepticism_level = np.random.choice(['S3', 'S4']) 
+                        self.grid[i, j].type = skepticism_level
+                        self.grid[i, j].rumor_prob = Globals.transmission_probability.get(skepticism_level, None)
+                        self.grid[i, j].original_params["type"] = skepticism_level
+                        self.grid[i, j].original_params["rumor_prob"] = Globals.transmission_probability.get(skepticism_level, None)
+                    
     def start(self):
         
         pygame.init()
@@ -100,12 +155,12 @@ class Grid:
     
     def check_for_convergence(self, generation_data):
         """
-        Check if the queue size is the same for 20 generations in a row
+        Check if the queue size is the same for 5 generations in a row
         """
-        if len(generation_data) < 20:
+        if len(generation_data) < 5:
             return False
             
-        queue_sizes = [data[1] for data in generation_data[-20:]]
+        queue_sizes = [data[1] for data in generation_data[-5:]]
         if len(set(queue_sizes)) != 1:
             return False
             
