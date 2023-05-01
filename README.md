@@ -25,6 +25,9 @@ When the simulation ends, the graph is displayed.
 
 # Project Files
 main.py: The main file that sets up the settings page and starts the simulation.
+
 Grid.py: The file that contains the Grid class and the Cell class, which represent the grid and its cells.
+
 Globals.py: The file that contains the global variables used in the project.
+
 README.md: The file that contains the project description, instructions, and other information.
